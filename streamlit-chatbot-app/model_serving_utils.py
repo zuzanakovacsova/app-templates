@@ -20,12 +20,12 @@ def _validate_endpoint_task_type(endpoint_name: str) -> None:
             f"Detected unsupported endpoint type for this basic chatbot template. "
             f"This chatbot template only supports chat completions-compatible endpoints. "
             f"For a richer chatbot template with support for all conversational endpoints on Databricks, "
-            f"see https://docs.databricks.com/aws/en/generative-ai/agent-framework/chat-app"
+        f"see https://docs.databricks.com/aws/en/generative-ai/agent-framework/chat-app"
         )
 
 def _query_endpoint(endpoint_name: str, messages: list[dict[str, str]], max_tokens) -> list[dict[str, str]]:
     """Calls a model serving endpoint."""
-    _validate_endpoint_task_type(endpoint_name)
+   # _validate_endpoint_task_type(endpoint_name)
     
     res = get_deploy_client('databricks').predict(
         endpoint=endpoint_name,
