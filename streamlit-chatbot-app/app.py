@@ -2,9 +2,7 @@ import logging
 import os
 import streamlit as st
 from databricks.sdk import WorkspaceClient
-from psycopg import sql
-from psycopg_pool import ConnectionPool
-from postgres_utils import init_database, add_request, get_connection
+from postgres_utils import init_database, add_request, get_requests
 
 
 w = WorkspaceClient()
@@ -85,8 +83,27 @@ if prompt := st.chat_input("What can you do?"):
         except Exception as e:
             logger.error(f"Failed to log request to database: {e}")
 
-
-
     # Add final response to chat history
     st.session_state.messages.append({"role": "assistant", "content": assistant_response[-1]})
+
+@st.fragment
+def display_todos(w):
+    with st.expander("Past chats"):
+    
+        chats = get_requests(w)
+    
+        if not chats:
+            st.info("No past chats. Please talk to me!")
+        else:
+            for id, prompt, response, created_at in chats:
+                col1, col2 = st.columns([0.2, 0.7])
+            
+                with col1:
+                    st.markdown(f"{prompt}")
+                    st.caption(f"Created: {created_at.strftime('%Y-%m-%d %H:%M')}")
+            
+                with col2:
+                    st.markdown(f"{response}")
+
+display_todos(w)
 

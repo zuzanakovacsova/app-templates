@@ -84,3 +84,10 @@ def add_request(prompt, response, workspace_client):
                 (prompt.strip(), response.strip()) # <--- The data tuple
             )
             conn.commit()
+
+def get_requests(workspace_client):
+    with get_connection(workspace_client) as conn:
+        with conn.cursor() as cur:
+            schema = get_schema_name()
+            cur.execute(sql.SQL("SELECT id, prompt, response, created_at FROM {}.request_history ORDER BY created_at DESC").format(sql.Identifier(schema)))
+            return cur.fetchall()
