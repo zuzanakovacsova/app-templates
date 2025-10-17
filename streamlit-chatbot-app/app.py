@@ -42,8 +42,36 @@ if "visibility" not in st.session_state:
 
 st.title("🧱 Chatbot App")
 
+# Adding a past chats section. Currently get_requests only fetches the last 3 requests.
+@st.fragment
+def display_requests(w):
+    with st.expander("Past chats"):
+    
+        chats = get_requests(w)
+    
+        if not chats:
+            st.info("No past chats. Please talk to me!")
+        else:
+            for id, prompt, response, created_at in chats:
+                col1, col2 = st.columns([0.2, 0.7])
+            
+                with col1:
+                    st.markdown(f"{prompt}")
+                    st.caption(f"Created: {created_at.strftime('%Y-%m-%d %H:%M')}")
+            
+                with col2:
+                    st.markdown(f"{response}")
+
+# Display past requests
+display_requests(w)
+
 st.markdown(
-    "ℹ️ Talk to your agent!"
+    """
+    <div style='font-size: 20px; color: #E97451;'>
+         💬 Talk to your agent!
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
 # Initialize chat history
@@ -86,24 +114,5 @@ if prompt := st.chat_input("What can you do?"):
     # Add final response to chat history
     st.session_state.messages.append({"role": "assistant", "content": assistant_response[-1]})
 
-@st.fragment
-def display_todos(w):
-    with st.expander("Past chats"):
-    
-        chats = get_requests(w)
-    
-        if not chats:
-            st.info("No past chats. Please talk to me!")
-        else:
-            for id, prompt, response, created_at in chats:
-                col1, col2 = st.columns([0.2, 0.7])
-            
-                with col1:
-                    st.markdown(f"{prompt}")
-                    st.caption(f"Created: {created_at.strftime('%Y-%m-%d %H:%M')}")
-            
-                with col2:
-                    st.markdown(f"{response}")
 
-display_todos(w)
 
