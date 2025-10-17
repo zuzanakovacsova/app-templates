@@ -2,6 +2,10 @@ import logging
 import os
 import streamlit as st
 from databricks.sdk import WorkspaceClient
+from psycopg import sql
+from psycopg_pool import ConnectionPool
+from postgres_utils import init_database, add_request, get_connection
+
 
 w = WorkspaceClient()
 client = w.serving_endpoints.get_open_ai_client()
@@ -29,13 +33,16 @@ def get_user_info():
 
 user_info = get_user_info()
 
+# Initialize database
+if not init_database(w):
+    st.stop()
+
 # Streamlit app
 if "visibility" not in st.session_state:
     st.session_state.visibility = "visible"
     st.session_state.disabled = False
 
 st.title("🧱 Chatbot App")
-
 
 st.markdown(
     "ℹ️ Talk to your agent!"
@@ -72,7 +79,14 @@ if prompt := st.chat_input("What can you do?"):
         assistant_response = resp
         # We only need the final response
         st.markdown(assistant_response[-1])
+        # Log in database
+        try:
+            add_request(prompt, assistant_response[-1],w)
+        except Exception as e:
+            logger.error(f"Failed to log request to database: {e}")
+
 
 
     # Add final response to chat history
     st.session_state.messages.append({"role": "assistant", "content": assistant_response[-1]})
+
